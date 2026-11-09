@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+$projectRoot = getcwd();
+if ($projectRoot === false) {
+    fwrite(STDERR, "cannot determine current directory\n");
+    exit(1);
+}
+$packageRoot = dirname(realpath(__FILE__), 2);
+file_put_contents(
+    $projectRoot . '/index.php',
+    "<?php\ndeclare(strict_types=1);\n\nrequire __DIR__ . '/vendor/autoload.php';\n\n(new \\vielhuber\\healthspace\\Healthspace(rootDir: __DIR__))->run();\n"
+);
+if ($packageRoot !== $projectRoot) {
+    copy($packageRoot . '/.htaccess', $projectRoot . '/.htaccess');
+}
+foreach (['.data', '.logs'] as $directory) {
+    if (!is_dir($projectRoot . '/' . $directory)) {
+        mkdir($projectRoot . '/' . $directory, 0700, true);
+    }
+}
+if (!file_exists($projectRoot . '/.data/.env')) {
+    $environment = file_get_contents($packageRoot . '/.env.example');
+    $environment = str_replace('AUTH_PASSWORD=', 'AUTH_PASSWORD=' . bin2hex(random_bytes(24)), $environment);
+    file_put_contents($projectRoot . '/.data/.env', $environment);
+    chmod($projectRoot . '/.data/.env', 0600);
+}
+if (!file_exists($projectRoot . '/.data/database.sqlite')) {
+    new PDO('sqlite:' . $projectRoot . '/.data/database.sqlite');
+    chmod($projectRoot . '/.data/database.sqlite', 0600);
+}
+echo "healthspace ready in $projectRoot\n";
+echo "Configure .data/.env; the generated login password is stored as AUTH_PASSWORD.\n";
+echo "Existing credentials and measurements are preserved on subsequent runs.\n";
+

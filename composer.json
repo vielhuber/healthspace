@@ -1,0 +1,27 @@
+{
+    "name": "vielhuber/healthspace",
+    "description": "Personal health dashboard with manual measurements and Google Health integration.",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.3",
+        "ext-curl": "*",
+        "ext-pdo_sqlite": "*",
+        "vielhuber/aihelper": "^5.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "vielhuber\\healthspace\\": "src/"
+        }
+    },
+    "bin": [
+        "bin/healthspace-init"
+    ],
+    "scripts": {
+        "test": [
+            "@php tests/health.php",
+            "@php tests/google.php",
+            "@php tests/http.php",
+            "@php tests/migration.php"
+        ]
+    }
+}

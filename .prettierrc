@@ -1,0 +1,32 @@
+{
+    "singleQuote": true,
+    "overrides": [
+        {
+            "files": ["**/*.css", "**/*.scss"],
+            "options": {
+                "singleQuote": false
+            }
+        },
+        {
+            "files": ["**/*.php"],
+            "options": {
+                "trailingCommaPHP": false,
+                "phpVersion": "8.2",
+                "plugins": ["@prettier/plugin-php"]
+            }
+        },
+        {
+            "files": ["bin/*"],
+            "options": {
+                "parser": "php",
+                "plugins": ["@prettier/plugin-php"],
+                "phpVersion": "8.3",
+                "trailingCommaPHP": false
+            }
+        }
+    ],
+    "tabWidth": 4,
+    "printWidth": 120,
+    "trailingComma": "none",
+    "arrowParens": "avoid"
+}

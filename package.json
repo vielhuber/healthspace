@@ -1,0 +1,13 @@
+{
+    "private": true,
+    "version": "1.0.1",
+    "scripts": {
+        "format": "prettier --write . bin/healthspace-init",
+        "format:check": "prettier --check . bin/healthspace-init",
+        "test": "node --test tests/charts.cjs"
+    },
+    "devDependencies": {
+        "@prettier/plugin-php": ">=0.26",
+        "prettier": ">=3"
+    }
+}
