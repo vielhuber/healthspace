@@ -6,8 +6,8 @@
     "start_url": "/?page=overview",
     "scope": "/",
     "display": "standalone",
-    "background_color": "#09090b",
-    "theme_color": "#09090b",
+    "background_color": "#070c18",
+    "theme_color": "#070c18",
     "lang": "de",
     "shortcuts": [
         { "name": "Gericht fotografieren", "url": "/?page=nutrition" },

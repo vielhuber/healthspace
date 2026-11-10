@@ -2,6 +2,8 @@ let $mealForm = document.getElementById('meal-upload');
 let $mealPhoto = document.getElementById('meal-photo');
 let $mealCamera = document.getElementById('meal-camera');
 let $mealCameraPhoto = document.getElementById('meal-camera-photo');
+let $mealDialog = document.getElementById('meal-dialog');
+let $mealClose = document.getElementById('meal-close');
 let $mealPreview = document.getElementById('meal-preview');
 let $mealStatus = document.getElementById('meal-upload-status');
 let mealBusy = false;
@@ -10,14 +12,23 @@ let mealPreviewUrl;
 let setMealBusy = busy => {
     mealBusy = busy;
     $mealForm.setAttribute('aria-busy', String(busy));
+    $mealCamera.disabled = busy;
+    $mealClose.disabled = busy;
     $mealForm.querySelectorAll('button, input:not([type="hidden"])').forEach($control => {
         $control.disabled = busy;
     });
 };
 
-$mealCamera.hidden = false;
 $mealCamera.addEventListener('click', () => {
+    $mealDialog.showModal();
+    $mealCameraPhoto.value = '';
     $mealCameraPhoto.click();
+});
+$mealClose.addEventListener('click', () => $mealDialog.close());
+$mealDialog.addEventListener('cancel', event => {
+    if (mealBusy) {
+        event.preventDefault();
+    }
 });
 $mealCameraPhoto.addEventListener('change', () => {
     $mealPhoto.files = $mealCameraPhoto.files;

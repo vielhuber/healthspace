@@ -204,13 +204,14 @@ final readonly class Nutrition
     }
 
     /**
-     * Distinguish recorded intake from watch-reported calorie expenditure.
+     * Reuse one request's CSRF token for capture and meal deletion forms.
      */
-    public function render(): string
+    private function csrfToken(): string
     {
         $csrf = $_COOKIE['healthspace_meal_csrf'] ?? '';
         if (!is_string($csrf) || preg_match('/^[a-f0-9]{64}$/', $csrf) !== 1) {
             $csrf = bin2hex(random_bytes(32));
+            $_COOKIE['healthspace_meal_csrf'] = $csrf;
             setcookie('healthspace_meal_csrf', $csrf, [
                 'path' => '/',
                 'httponly' => true,
@@ -218,7 +219,47 @@ final readonly class Nutrition
                 'samesite' => 'Strict'
             ]);
         }
+        return $csrf;
+    }
+
+    /**
+     * Keep immediate camera capture available from every page's main menu.
+     */
+    public function renderUpload(): string
+    {
+        $csrf = $this->csrfToken();
         $submissionId = bin2hex(random_bytes(16));
+        $today = date('Y-m-d');
+        return <<<HTML
+        <dialog id="meal-dialog" class="meal-dialog" aria-labelledby="meal-dialog-title">
+            <div class="meal-dialog__header">
+                <h2 id="meal-dialog-title">Mahlzeit erfassen</h2>
+                <button id="meal-close" class="meal-dialog__close" type="button" aria-label="Schließen">×</button>
+            </div>
+            <p class="viewnav__empty">Foto wählen, Kalorien automatisch erfassen. Das Foto wird an die KI übertragen, aber hier nicht gespeichert.</p>
+            <form id="meal-upload" method="post" action="/?page=nutrition" enctype="multipart/form-data">
+                <input type="hidden" name="csrf" value="{$csrf}">
+                <input type="hidden" name="submission_id" value="{$submissionId}">
+                <input type="hidden" name="meal_action" value="upload">
+                <input id="meal-camera-photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
+                <div class="meal-upload__fields">
+                    <label>Datum<input type="date" name="day" value="{$today}" required></label>
+                    <label>Foto auswählen<input id="meal-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" required></label>
+                </div>
+                <img id="meal-preview" alt="Vorschau der ausgewählten Mahlzeit" hidden>
+                <p id="meal-upload-status" class="viewnav__empty" role="status" aria-live="polite">Die Erkennung startet nach der Fotoauswahl automatisch.</p>
+                <div class="health-entry__buttons"><button type="submit">Kalorien erkennen</button></div>
+            </form>
+        </dialog>
+        HTML;
+    }
+
+    /**
+     * Distinguish recorded intake from watch-reported calorie expenditure.
+     */
+    public function render(): string
+    {
+        $csrf = $this->csrfToken();
         $today = date('Y-m-d');
         $weekStart = (new DateTimeImmutable('today'))->modify('-6 days')->format('Y-m-d');
         $monthStart = (new DateTimeImmutable('today'))->modify('-29 days')->format('Y-m-d');
@@ -323,27 +364,6 @@ final readonly class Nutrition
         }
         return <<<HTML
         {$message}
-        <section class="health-entry">
-            <h2 class="health-entry__title">Gericht fotografieren</h2>
-            <p class="viewnav__empty">Foto wählen, Kalorien automatisch erfassen. Das Foto wird an die KI übertragen, aber hier nicht gespeichert.</p>
-            <form id="meal-upload" method="post" action="/?page=nutrition" enctype="multipart/form-data">
-                <input type="hidden" name="csrf" value="{$csrf}">
-                <input type="hidden" name="submission_id" value="{$submissionId}">
-                <input type="hidden" name="meal_action" value="upload">
-                <input id="meal-camera-photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
-                <div class="meal-upload__fields">
-                    <label>Datum<input type="date" name="day" value="{$today}" required></label>
-                    <label>Foto auswählen<input id="meal-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" required></label>
-                </div>
-                <img id="meal-preview" alt="Vorschau der ausgewählten Mahlzeit" hidden>
-                <div class="health-entry__buttons">
-                    <button id="meal-camera" type="button" hidden>Foto aufnehmen</button>
-                    <button type="submit">Kalorien erkennen</button>
-                </div>
-                <p id="meal-upload-status" class="viewnav__empty" role="status" aria-live="polite"></p>
-                <noscript><p>Nach der Fotoauswahl „Kalorien erkennen“ auswählen.</p></noscript>
-            </form>
-        </section>
         <div class="health__kpis health__kpis--nutrition">
             <div class="health__kpi"><span class="health__kpi-value">{$todayCalories} kcal</span><span class="health__kpi-label">Heute erfasst</span></div>
             <div class="health__kpi"><span class="health__kpi-value">{$weekCalories} kcal</span><span class="health__kpi-label">Letzte 7 Kalendertage</span></div>
@@ -355,9 +375,8 @@ final readonly class Nutrition
             <div class="health__canvas"><canvas id="healthIntake" role="img" aria-label="Täglich erfasste Kalorien der letzten 30 Tage"></canvas></div>
         </section>
         <section class="health-entry"><h2 class="health-entry__title">Mahlzeiten</h2>{$entries}</section>
-        <script src="/?asset=js/chart.min.js&v=3"></script>
+        <script src="/?asset=js/chart.min.js&v=4"></script>
         <script type="application/json" data-chart-config="{$payload}"></script>
-        <script src="/?asset=js/nutrition.js&v=3" defer></script>
         HTML;
     }
 }

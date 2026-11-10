@@ -94,18 +94,20 @@ final class Healthspace
                 $label .
                 '</a>';
         }
-        $content = $page === 'nutrition' ? $this->nutrition()->render() : $this->buildHealthBlock(page: $page);
+        $nutrition = $this->nutrition();
+        $upload = $nutrition->renderUpload();
+        $content = $page === 'nutrition' ? $nutrition->render() : $this->buildHealthBlock(page: $page);
         if ($page === 'overview') {
             $digest = json_decode(json: $this->cacheGet(key: 'health_digest') ?? '{}', associative: true);
             $content = $this->buildHealthDigestBlock(health: is_array(value: $digest) ? $digest : []) . $content;
         }
-        $connection = $this->isGoogleHealthConnected()
-            ? '<span class="connection-status">Google Health verbunden</span>'
-            : '<a href="/?health=connect">Google Health verbinden</a>';
         $lastSync = is_file(filename: $this->logDir . '/scrape.log')
             ? 'Zuletzt synchronisiert: ' .
                 date(format: 'd.m.Y H:i', timestamp: (int) filemtime(filename: $this->logDir . '/scrape.log'))
             : '';
+        $connection = $this->isGoogleHealthConnected()
+            ? '<span class="connection-status">Google Health verbunden</span>'
+            : '<a href="/?health=connect">Google Health verbinden</a>';
         return <<<HTML
         <!doctype html>
         <html lang="de" data-theme="dark">
@@ -114,23 +116,26 @@ final class Healthspace
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
             <title>{$title} · healthspace</title>
             {$pwa}
-            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=3">
+            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=4">
         </head>
         <body>
             <main>
                 <header class="top">
-                    <h1><a href="/">💚 healthspace</a></h1>
+                    <h1><a href="/"><span class="brand-mark" aria-hidden="true"></span>healthspace</a></h1>
                     <nav aria-label="Aktionen">
-                        {$connection}
-                        <a href="/?logout=1">Logout</a>
+                        <div class="connection">{$connection}<span class="last-sync">{$lastSync}</span></div>
+                        <a class="top-logout" href="/?logout=1">Logout</a>
                     </nav>
                 </header>
-                <nav class="page-nav" aria-label="Hauptnavigation">{$navigation}</nav>
-                <h2 class="page-title">{$title}</h2>
-                <p class="last-sync">{$lastSync}</p>
+                <nav class="page-nav" aria-label="Hauptnavigation">
+                    {$navigation}
+                    <button class="capture-button" id="meal-camera" type="button" aria-label="Mahlzeit fotografieren oder hochladen" aria-haspopup="dialog" aria-controls="meal-dialog"><span aria-hidden="true">+</span></button>
+                </nav>
                 {$content}
+                {$upload}
             </main>
-            <script src="/?asset=js/charts.js&v=3"></script>
+            <script src="/?asset=js/nutrition.js&v=4" defer></script>
+            <script src="/?asset=js/charts.js&v=4"></script>
         </body>
         </html>
         HTML;
@@ -541,6 +546,7 @@ final class Healthspace
             str_ends_with(haystack: $file, needle: '.html') => 'text/html; charset=utf-8',
             str_ends_with(haystack: $file, needle: '.svg') => 'image/svg+xml',
             str_ends_with(haystack: $file, needle: '.png') => 'image/png',
+            str_ends_with(haystack: $file, needle: '.ttf') => 'font/ttf',
             default => 'application/octet-stream'
         };
         header(header: 'Content-Type: ' . $mime);
@@ -683,23 +689,11 @@ final class Healthspace
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
             <title>healthspace — Login</title>
             {$pwa}
-            <style>
-                :root { color-scheme: dark; }
-                * { box-sizing: border-box; }
-                html, body { margin: 0; height: 100%; }
-                body { font-family: Arial, sans-serif; background: #09090b; color: #e4e4e7; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-                form { background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 32px 28px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 14px; }
-                h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.02em; }
-                input { font: 600 16px/1 Arial, sans-serif; padding: 12px 14px; color: #e4e4e7; background: #27272a; border: 1px solid #3f3f46; border-radius: 8px; width: 100%; }
-                input:focus { outline: none; border-color: #a1a1aa; }
-                button { font: 700 14px/1 Arial, sans-serif; padding: 12px 14px; background: #e4e4e7; color: #18181b; border: 0; border-radius: 8px; cursor: pointer; }
-                button:hover { background: #d4d4d8; }
-                .err { color: #f87171; font: 500 13px/1.4 Arial, sans-serif; margin: 0; }
-            </style>
+            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=4">
         </head>
-        <body>
-            <form method="post" action="/">
-                <h1>💚 healthspace</h1>
+        <body class="login-page">
+            <form class="login-form" method="post" action="/">
+                <h1><span class="brand-mark" aria-hidden="true"></span>healthspace</h1>
                 {$errorHtml}
                 <input type="password" name="auth_password" autofocus required placeholder="Passwort">
                 <button type="submit">Login</button>
@@ -714,8 +708,9 @@ final class Healthspace
      */
     private function pwaHeadTags(): string
     {
-        return '<link rel="manifest" href="/?asset=pwa/manifest.json&v=3">' .
-            '<meta name="theme-color" content="#09090b">' .
+        return '<link rel="manifest" href="/?asset=pwa/manifest.json&v=4">' .
+            '<meta name="theme-color" content="#070c18">' .
+            '<link rel="preload" href="/?asset=css/space-grotesk.ttf&v=4" as="font" type="font/ttf" crossorigin>' .
             '<link rel="icon" type="image/svg+xml" href="/?asset=pwa/icon.svg">' .
             '<link rel="icon" type="image/png" sizes="192x192" href="/?asset=pwa/icon-192.png">' .
             '<link rel="apple-touch-icon" href="/?asset=pwa/apple-touch-icon.png">' .
@@ -723,7 +718,7 @@ final class Healthspace
             '<meta name="mobile-web-app-capable" content="yes">' .
             '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' .
             '<meta name="apple-mobile-web-app-title" content="Healthspace">' .
-            '<script src="/?asset=js/pwa.js&v=3" defer></script>';
+            '<script src="/?asset=js/pwa.js&v=4" defer></script>';
     }
 
     /**
@@ -1264,6 +1259,9 @@ final class Healthspace
      */
     private function buildHealthBlock(string $page = 'all'): string
     {
+        if ($page === 'overview') {
+            return '';
+        }
         $measurementRows = $this->openDatabase()
             ->query(
                 query: 'SELECT id, day, weight_kg, body_fat_percentage,
@@ -1271,37 +1269,6 @@ final class Healthspace
                 FROM health_measurements ORDER BY day DESC'
             )
             ->fetchAll(mode: PDO::FETCH_ASSOC);
-        if ($page === 'overview') {
-            $latestWeight = '';
-            foreach ($measurementRows as $measurementRow) {
-                if ($measurementRow['weight_kg'] === null) {
-                    continue;
-                }
-                $weightLevel = match (true) {
-                    (float) $measurementRow['weight_kg'] <= self::HEALTH_WEIGHT_GOAL_KG => 'green',
-                    (float) $measurementRow['weight_kg'] <= self::HEALTH_WEIGHT_AMBER_KG => 'amber',
-                    default => 'red'
-                };
-                $latestWeight =
-                    '<div class="health__light"><span class="health__lamp health__lamp--on health__lamp--' .
-                    $weightLevel .
-                    '" aria-hidden="true"></span><div class="health__light-text">' .
-                    '<span class="health__light-title">Letztes Gewicht</span><strong class="health__light-value">' .
-                    number_format(
-                        num: (float) $measurementRow['weight_kg'],
-                        decimals: 1,
-                        decimal_separator: ',',
-                        thousands_separator: '.'
-                    ) .
-                    ' kg</strong><span class="health__light-caption">Ziel ' .
-                    self::HEALTH_WEIGHT_GOAL_KG .
-                    ' kg · ' .
-                    date(format: 'd.m.Y', timestamp: (int) strtotime(datetime: $measurementRow['day'])) .
-                    '</span></div></div>';
-                break;
-            }
-            return '<section class="health">' . $latestWeight . '</section>';
-        }
         $editMeasurement = null;
         $editMeasurementId = filter_var(value: $_GET['edit_measurement'] ?? null, filter: FILTER_VALIDATE_INT);
         if ($editMeasurementId !== false && $editMeasurementId > 0) {
@@ -1566,7 +1533,7 @@ final class Healthspace
                 $measurementChartHtml .
                 $measurementFormHtml .
                 $measurementTableHtml .
-                '</section><script src="/?asset=js/chart.min.js&v=3"></script>' .
+                '</section><script src="/?asset=js/chart.min.js&v=4"></script>' .
                 '<script type="application/json" data-chart-config="' .
                 $payload .
                 '"></script>';
@@ -1598,7 +1565,7 @@ final class Healthspace
                 '</p>' .
                 $measurementTableHtml .
                 $measurementFormHtml .
-                '</section><script src="/?asset=js/chart.min.js&v=3"></script>' .
+                '</section><script src="/?asset=js/chart.min.js&v=4"></script>' .
                 '<script type="application/json" data-chart-config="' .
                 $payload .
                 '"></script>';
@@ -2042,7 +2009,7 @@ final class Healthspace
             $measurementChartHtml .
             $measurementTableHtml .
             $measurementFormHtml .
-            '</section><script src="/?asset=js/chart.min.js&v=3"></script>' .
+            '</section><script src="/?asset=js/chart.min.js&v=4"></script>' .
             '<script type="application/json" data-chart-config="' .
             $payload .
             '"></script>';

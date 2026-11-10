@@ -4,10 +4,11 @@ let renderCharts = function () {
         return;
     }
     let charts = JSON.parse($data.getAttribute('data-chart-config') || '[]');
-    let ink = '#e4e4e7';
-    let muted = '#71717a';
-    let grid = 'rgba(255,255,255,.08)';
-    let accent = '#f97316';
+    globalThis.Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+    let ink = '#80f4d4';
+    let muted = '#9bacc4';
+    let grid = 'rgba(150,183,219,.09)';
+    let accent = '#f7c57b';
     charts.forEach(function (chart) {
         let $canvas = document.getElementById(chart.id);
         if (!$canvas) {
@@ -19,7 +20,7 @@ let renderCharts = function () {
         // phases stay distinguishable.
         let stacked = (chart.stacks || []).length > 0;
         let multipleSeries = (chart.series || []).length > 0;
-        let shades = ['#e4e4e7', '#a1a1aa', '#71717a', '#3f3f46', '#52525b'];
+        let shades = ['#80f4d4', '#83aef7', '#627ea7', '#354b6b', '#d4b5ef'];
         let sets = multipleSeries
             ? chart.series.map(function (series, index) {
                   return {
@@ -130,10 +131,7 @@ let renderCharts = function () {
                         grid: { color: grid },
                         ticks: {
                             color: muted,
-                            font: { size: 10 },
-                            callback: function (value) {
-                                return value;
-                            }
+                            font: { size: 10 }
                         }
                     }
                 }
@@ -142,4 +140,4 @@ let renderCharts = function () {
     });
 };
 
-renderCharts();
+document.fonts.ready.then(renderCharts);
