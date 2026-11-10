@@ -116,9 +116,9 @@ final class Healthspace
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
             <title>{$title} · healthspace</title>
             {$pwa}
-            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=5">
+            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=6">
         </head>
-        <body>
+        <body tabindex="-1" autofocus>
             <main>
                 <header class="top">
                     <h1><a href="/"><span class="brand-mark" aria-hidden="true"></span>healthspace</a></h1>
@@ -689,7 +689,7 @@ final class Healthspace
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
             <title>healthspace — Login</title>
             {$pwa}
-            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=5">
+            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=6">
         </head>
         <body class="login-page">
             <form class="login-form" method="post" action="/">

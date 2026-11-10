@@ -364,7 +364,7 @@ final readonly class Nutrition
         }
         return <<<HTML
         {$message}
-        <div class="health__kpis health__kpis--nutrition">
+        <div class="health__kpis">
             <div class="health__kpi"><span class="health__kpi-value">{$todayCalories} kcal</span><span class="health__kpi-label">Heute erfasst</span></div>
             <div class="health__kpi"><span class="health__kpi-value">{$weekCalories} kcal</span><span class="health__kpi-label">Letzte 7 Kalendertage</span></div>
             <div class="health__kpi"><span class="health__kpi-value">{$average} kcal</span><span class="health__kpi-label">Ø je erfasstem Tag (7 Tage)</span></div>

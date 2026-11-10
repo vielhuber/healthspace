@@ -1,8 +1,8 @@
-let cacheName = 'healthspace-static-v5';
-let offlineUrl = '/?asset=pwa/offline.html&v=5';
+let cacheName = 'healthspace-static-v6';
+let offlineUrl = '/?asset=pwa/offline.html&v=6';
 let staticUrls = [
     offlineUrl,
-    '/?asset=css/healthspace.css&v=5',
+    '/?asset=css/healthspace.css&v=6',
     '/?asset=css/space-grotesk.ttf&v=5',
     '/?asset=js/charts.js&v=5',
     '/?asset=js/nutrition.js&v=5',
