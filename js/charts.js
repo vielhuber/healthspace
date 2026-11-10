@@ -4,11 +4,10 @@ let renderCharts = function () {
         return;
     }
     let charts = JSON.parse($data.getAttribute('data-chart-config') || '[]');
-    let dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    let ink = dark ? '#e4e4e7' : '#18181b';
-    let muted = dark ? '#71717a' : '#a1a1aa';
-    let grid = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.06)';
-    let accent = dark ? '#f97316' : '#ea580c';
+    let ink = '#e4e4e7';
+    let muted = '#71717a';
+    let grid = 'rgba(255,255,255,.08)';
+    let accent = '#f97316';
     charts.forEach(function (chart) {
         let $canvas = document.getElementById(chart.id);
         if (!$canvas) {
@@ -17,12 +16,10 @@ let renderCharts = function () {
         Chart.getChart($canvas)?.destroy();
         // Stacked charts (sleep stages) carry their series in
         // chart.stacks and shade them from ink to muted so the
-        // phases stay distinguishable in both themes.
+        // phases stay distinguishable.
         let stacked = (chart.stacks || []).length > 0;
         let multipleSeries = (chart.series || []).length > 0;
-        let shades = dark
-            ? ['#e4e4e7', '#a1a1aa', '#71717a', '#3f3f46', '#52525b']
-            : ['#18181b', '#52525b', '#a1a1aa', '#d4d4d8', '#71717a'];
+        let shades = ['#e4e4e7', '#a1a1aa', '#71717a', '#3f3f46', '#52525b'];
         let sets = multipleSeries
             ? chart.series.map(function (series, index) {
                   return {
@@ -146,4 +143,3 @@ let renderCharts = function () {
 };
 
 renderCharts();
-document.addEventListener('themechange', renderCharts);

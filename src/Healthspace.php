@@ -112,21 +112,19 @@ final class Healthspace
             : '';
         return <<<HTML
         <!doctype html>
-        <html lang="de">
+        <html lang="de" data-theme="dark">
         <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
             <title>{$title} · healthspace</title>
             {$pwa}
-            <script src="/?asset=js/theme.js&v=2"></script>
-            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=2">
+            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=3">
         </head>
         <body>
             <main>
                 <header class="top">
                     <h1><a href="/">💚 healthspace</a></h1>
                     <nav aria-label="Aktionen">
-                        <button type="button" id="themeToggle" aria-label="Farbschema wechseln">◐</button>
                         {$connection}
                         <button type="button" id="installApp" hidden>App installieren</button>
                         <a href="/?scrape=1" target="_blank" rel="noopener">Synchronisieren ↻</a>
@@ -138,7 +136,7 @@ final class Healthspace
                 <p class="last-sync">{$lastSync}</p>
                 {$content}
             </main>
-            <script src="/?asset=js/charts.js&v=2"></script>
+            <script src="/?asset=js/charts.js&v=3"></script>
         </body>
         </html>
         HTML;
@@ -685,24 +683,24 @@ final class Healthspace
             $error !== null ? '<p class="err">' . htmlspecialchars(string: $error, flags: ENT_QUOTES) . '</p>' : '';
         echo <<<HTML
         <!doctype html>
-        <html lang="de">
+        <html lang="de" data-theme="dark">
         <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
             <title>healthspace — Login</title>
             {$pwa}
             <style>
-                :root { color-scheme: light; }
+                :root { color-scheme: dark; }
                 * { box-sizing: border-box; }
                 html, body { margin: 0; height: 100%; }
-                body { font-family: Arial, sans-serif; background: #f4f4f5; color: #111; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-                form { background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 32px 28px; box-shadow: 0 4px 24px rgba(0,0,0,.06); width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 14px; }
+                body { font-family: Arial, sans-serif; background: #09090b; color: #e4e4e7; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+                form { background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 32px 28px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 14px; }
                 h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.02em; }
-                input { font: 600 16px/1 Arial, sans-serif; padding: 12px 14px; border: 1px solid #d4d4d8; border-radius: 8px; width: 100%; }
-                input:focus { outline: none; border-color: #18181b; }
-                button { font: 700 14px/1 Arial, sans-serif; padding: 12px 14px; background: #18181b; color: #fff; border: 0; border-radius: 8px; cursor: pointer; }
-                button:hover { background: #3f3f46; }
-                .err { color: #b91c1c; font: 500 13px/1.4 Arial, sans-serif; margin: 0; }
+                input { font: 600 16px/1 Arial, sans-serif; padding: 12px 14px; color: #e4e4e7; background: #27272a; border: 1px solid #3f3f46; border-radius: 8px; width: 100%; }
+                input:focus { outline: none; border-color: #a1a1aa; }
+                button { font: 700 14px/1 Arial, sans-serif; padding: 12px 14px; background: #e4e4e7; color: #18181b; border: 0; border-radius: 8px; cursor: pointer; }
+                button:hover { background: #d4d4d8; }
+                .err { color: #f87171; font: 500 13px/1.4 Arial, sans-serif; margin: 0; }
             </style>
         </head>
         <body>
@@ -722,8 +720,8 @@ final class Healthspace
      */
     private function pwaHeadTags(): string
     {
-        return '<link rel="manifest" href="/?asset=pwa/manifest.json&v=2">' .
-            '<meta name="theme-color" content="#111111">' .
+        return '<link rel="manifest" href="/?asset=pwa/manifest.json&v=3">' .
+            '<meta name="theme-color" content="#09090b">' .
             '<link rel="icon" type="image/svg+xml" href="/?asset=pwa/icon.svg">' .
             '<link rel="icon" type="image/png" sizes="192x192" href="/?asset=pwa/icon-192.png">' .
             '<link rel="apple-touch-icon" href="/?asset=pwa/apple-touch-icon.png">' .
@@ -731,7 +729,7 @@ final class Healthspace
             '<meta name="mobile-web-app-capable" content="yes">' .
             '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' .
             '<meta name="apple-mobile-web-app-title" content="Healthspace">' .
-            '<script src="/?asset=js/pwa.js&v=2" defer></script>';
+            '<script src="/?asset=js/pwa.js&v=3" defer></script>';
     }
 
     /**
@@ -1574,7 +1572,7 @@ final class Healthspace
                 $latestWeight .
                 $measurementChartHtml .
                 ($page === 'measurements' ? $measurementFormHtml . $measurementTableHtml : '') .
-                '</section><script src="/?asset=js/chart.min.js&v=2"></script>' .
+                '</section><script src="/?asset=js/chart.min.js&v=3"></script>' .
                 '<script type="application/json" data-chart-config="' .
                 $payload .
                 '"></script>';
@@ -1606,7 +1604,7 @@ final class Healthspace
                 '</p>' .
                 $measurementTableHtml .
                 $measurementFormHtml .
-                '</section><script src="/?asset=js/chart.min.js&v=2"></script>' .
+                '</section><script src="/?asset=js/chart.min.js&v=3"></script>' .
                 '<script type="application/json" data-chart-config="' .
                 $payload .
                 '"></script>';
@@ -2050,7 +2048,7 @@ final class Healthspace
             $measurementChartHtml .
             $measurementTableHtml .
             $measurementFormHtml .
-            '</section><script src="/?asset=js/chart.min.js&v=2"></script>' .
+            '</section><script src="/?asset=js/chart.min.js&v=3"></script>' .
             '<script type="application/json" data-chart-config="' .
             $payload .
             '"></script>';

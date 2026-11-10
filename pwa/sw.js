@@ -1,14 +1,13 @@
-let cacheName = 'healthspace-static-v2';
-let offlineUrl = '/?asset=pwa/offline.html&v=2';
+let cacheName = 'healthspace-static-v3';
+let offlineUrl = '/?asset=pwa/offline.html&v=3';
 let staticUrls = [
     offlineUrl,
-    '/?asset=css/healthspace.css&v=2',
-    '/?asset=js/theme.js&v=2',
-    '/?asset=js/charts.js&v=2',
-    '/?asset=js/nutrition.js&v=2',
-    '/?asset=js/pwa.js&v=2',
-    '/?asset=js/chart.min.js&v=2',
-    '/?asset=pwa/manifest.json&v=2',
+    '/?asset=css/healthspace.css&v=3',
+    '/?asset=js/charts.js&v=3',
+    '/?asset=js/nutrition.js&v=3',
+    '/?asset=js/pwa.js&v=3',
+    '/?asset=js/chart.min.js&v=3',
+    '/?asset=pwa/manifest.json&v=3',
     '/?asset=pwa/icon.svg',
     '/?asset=pwa/icon-192.png',
     '/?asset=pwa/icon-512.png',
