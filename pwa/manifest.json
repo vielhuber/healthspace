@@ -11,7 +11,7 @@
     "lang": "de",
     "shortcuts": [
         { "name": "Gericht fotografieren", "url": "/?page=nutrition" },
-        { "name": "Messwerte erfassen", "url": "/?page=measurements#health-entry-form" }
+        { "name": "Gewicht & Blutdruck erfassen", "url": "/?page=measurements#health-entry-form" }
     ],
     "icons": [
         {

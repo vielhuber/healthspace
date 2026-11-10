@@ -325,8 +325,7 @@ final readonly class Nutrition
         {$message}
         <section class="health-entry">
             <h2 class="health-entry__title">Gericht fotografieren</h2>
-            <p class="viewnav__empty">Foto auswählen oder aufnehmen: Die KI schätzt die Kalorien und speichert die Mahlzeit automatisch.
-                Das Foto wird an den konfigurierten KI-Anbieter übertragen, in healthspace aber nicht dauerhaft gespeichert.</p>
+            <p class="viewnav__empty">Foto wählen, Kalorien automatisch erfassen. Das Foto wird an die KI übertragen, aber hier nicht gespeichert.</p>
             <form id="meal-upload" method="post" action="/?page=nutrition" enctype="multipart/form-data">
                 <input type="hidden" name="csrf" value="{$csrf}">
                 <input type="hidden" name="submission_id" value="{$submissionId}">
@@ -352,13 +351,13 @@ final readonly class Nutrition
         </div>
         <section class="health__chart">
             <h2 class="health__chart-title">Kalorieneinnahme · letzte 30 Kalendertage</h2>
-            <p class="viewnav__empty">KI-Schätzwerte der erfassten Mahlzeiten, keine vollständige Tagesbilanz. Tage ohne Einträge sind keine Nullwerte.</p>
+            <p class="viewnav__empty">KI-Schätzwerte, nur erfasste Mahlzeiten. Tage ohne Einträge bleiben ausgelassen.</p>
             <div class="health__canvas"><canvas id="healthIntake" role="img" aria-label="Täglich erfasste Kalorien der letzten 30 Tage"></canvas></div>
         </section>
         <section class="health-entry"><h2 class="health-entry__title">Mahlzeiten</h2>{$entries}</section>
-        <script src="/?asset=js/chart.min.js&v=2"></script>
+        <script src="/?asset=js/chart.min.js&v=3"></script>
         <script type="application/json" data-chart-config="{$payload}"></script>
-        <script src="/?asset=js/nutrition.js&v=2" defer></script>
+        <script src="/?asset=js/nutrition.js&v=3" defer></script>
         HTML;
     }
 }

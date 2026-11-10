@@ -9,28 +9,3 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
-
-let installPrompt;
-let $installApp = document.getElementById('installApp');
-window.addEventListener('beforeinstallprompt', event => {
-    if (!$installApp) {
-        return;
-    }
-    event.preventDefault();
-    installPrompt = event;
-    $installApp.hidden = false;
-});
-$installApp?.addEventListener('click', async () => {
-    if (!installPrompt) {
-        return;
-    }
-    await installPrompt.prompt();
-    installPrompt = null;
-    $installApp.hidden = true;
-});
-window.addEventListener('appinstalled', () => {
-    installPrompt = null;
-    if ($installApp) {
-        $installApp.hidden = true;
-    }
-});

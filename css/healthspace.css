@@ -44,20 +44,7 @@ header.top nav {
     margin-left: auto;
     font-size: 12px;
 }
-header.top button {
-    border: 1px solid #d4d4d8;
-    border-radius: 6px;
-    background: none;
-    color: inherit;
-    cursor: pointer;
-    font-size: 20px;
-}
-header.top #installApp {
-    padding: 10px;
-    font-size: 12px;
-}
-header.top nav a,
-header.top nav button {
+header.top nav a {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
@@ -88,9 +75,6 @@ header.top nav button {
 .page-title {
     margin: 0 0 12px;
     font-size: 22px;
-}
-.page-links {
-    line-height: 1.8;
 }
 :focus-visible {
     outline: 2px solid currentColor;

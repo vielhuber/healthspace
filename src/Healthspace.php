@@ -73,7 +73,7 @@ final class Healthspace
         $pwa = $this->pwaHeadTags();
         $pages = [
             'overview' => 'Übersicht',
-            'measurements' => 'Messwerte',
+            'measurements' => 'Gewicht & Blutdruck',
             'nutrition' => 'Ernährung',
             'activity' => 'Aktivität & Schlaf'
         ];
@@ -97,11 +97,7 @@ final class Healthspace
         $content = $page === 'nutrition' ? $this->nutrition()->render() : $this->buildHealthBlock(page: $page);
         if ($page === 'overview') {
             $digest = json_decode(json: $this->cacheGet(key: 'health_digest') ?? '{}', associative: true);
-            $content =
-                $this->buildHealthDigestBlock(health: is_array(value: $digest) ? $digest : []) .
-                '<p class="page-links"><a href="/?page=nutrition">Gericht fotografieren</a> · ' .
-                '<a href="/?page=measurements#health-entry-form">Messwerte erfassen</a></p>' .
-                $content;
+            $content = $this->buildHealthDigestBlock(health: is_array(value: $digest) ? $digest : []) . $content;
         }
         $connection = $this->isGoogleHealthConnected()
             ? '<span class="connection-status">Google Health verbunden</span>'
@@ -126,8 +122,6 @@ final class Healthspace
                     <h1><a href="/">💚 healthspace</a></h1>
                     <nav aria-label="Aktionen">
                         {$connection}
-                        <button type="button" id="installApp" hidden>App installieren</button>
-                        <a href="/?scrape=1" target="_blank" rel="noopener">Synchronisieren ↻</a>
                         <a href="/?logout=1">Logout</a>
                     </nav>
                 </header>
@@ -1277,6 +1271,37 @@ final class Healthspace
                 FROM health_measurements ORDER BY day DESC'
             )
             ->fetchAll(mode: PDO::FETCH_ASSOC);
+        if ($page === 'overview') {
+            $latestWeight = '';
+            foreach ($measurementRows as $measurementRow) {
+                if ($measurementRow['weight_kg'] === null) {
+                    continue;
+                }
+                $weightLevel = match (true) {
+                    (float) $measurementRow['weight_kg'] <= self::HEALTH_WEIGHT_GOAL_KG => 'green',
+                    (float) $measurementRow['weight_kg'] <= self::HEALTH_WEIGHT_AMBER_KG => 'amber',
+                    default => 'red'
+                };
+                $latestWeight =
+                    '<div class="health__light"><span class="health__lamp health__lamp--on health__lamp--' .
+                    $weightLevel .
+                    '" aria-hidden="true"></span><div class="health__light-text">' .
+                    '<span class="health__light-title">Letztes Gewicht</span><strong class="health__light-value">' .
+                    number_format(
+                        num: (float) $measurementRow['weight_kg'],
+                        decimals: 1,
+                        decimal_separator: ',',
+                        thousands_separator: '.'
+                    ) .
+                    ' kg</strong><span class="health__light-caption">Ziel ' .
+                    self::HEALTH_WEIGHT_GOAL_KG .
+                    ' kg · ' .
+                    date(format: 'd.m.Y', timestamp: (int) strtotime(datetime: $measurementRow['day'])) .
+                    '</span></div></div>';
+                break;
+            }
+            return '<section class="health">' . $latestWeight . '</section>';
+        }
         $editMeasurement = null;
         $editMeasurementId = filter_var(value: $_GET['edit_measurement'] ?? null, filter: FILTER_VALIDATE_INT);
         if ($editMeasurementId !== false && $editMeasurementId > 0) {
@@ -1528,9 +1553,6 @@ final class Healthspace
         );
         $measurementChartHtml = '';
         foreach ($measurementCharts as $measurementChart) {
-            if ($page === 'overview' && $measurementChart['id'] !== 'healthWeight') {
-                continue;
-            }
             $measurementChartHtml .=
                 '<div class="health__chart"><h3 class="health__chart-title">' .
                 $measurementChart['label'] .
@@ -1538,40 +1560,12 @@ final class Healthspace
                 $measurementChart['id'] .
                 '"></canvas></div></div>';
         }
-        if ($page === 'overview' || $page === 'measurements') {
+        if ($page === 'measurements') {
             $payload = htmlspecialchars(string: (string) json_encode(value: $measurementCharts), flags: ENT_QUOTES);
-            $latestWeight = '';
-            foreach ($measurementRows as $measurementRow) {
-                if ($page !== 'overview' || $measurementRow['weight_kg'] === null) {
-                    continue;
-                }
-                $weightLevel = match (true) {
-                    (float) $measurementRow['weight_kg'] <= self::HEALTH_WEIGHT_GOAL_KG => 'green',
-                    (float) $measurementRow['weight_kg'] <= self::HEALTH_WEIGHT_AMBER_KG => 'amber',
-                    default => 'red'
-                };
-                $latestWeight =
-                    '<div class="health__light"><span class="health__lamp health__lamp--on health__lamp--' .
-                    $weightLevel .
-                    '" aria-hidden="true"></span><div class="health__light-text">' .
-                    '<span class="health__light-title">Letztes Gewicht</span><strong class="health__light-value">' .
-                    number_format(
-                        num: (float) $measurementRow['weight_kg'],
-                        decimals: 1,
-                        decimal_separator: ',',
-                        thousands_separator: '.'
-                    ) .
-                    ' kg</strong><span class="health__light-caption">Ziel ' .
-                    self::HEALTH_WEIGHT_GOAL_KG .
-                    ' kg · ' .
-                    date(format: 'd.m.Y', timestamp: (int) strtotime(datetime: $measurementRow['day'])) .
-                    '</span></div></div>';
-                break;
-            }
             return '<section class="health">' .
-                $latestWeight .
                 $measurementChartHtml .
-                ($page === 'measurements' ? $measurementFormHtml . $measurementTableHtml : '') .
+                $measurementFormHtml .
+                $measurementTableHtml .
                 '</section><script src="/?asset=js/chart.min.js&v=3"></script>' .
                 '<script type="application/json" data-chart-config="' .
                 $payload .
@@ -2165,7 +2159,7 @@ final class Healthspace
             );
         }
         $prompt =
-            'Schreibe einen flüssigen, prägnanten Absatz auf Deutsch (2 bis 3 Sätze) über die ' .
+            'Schreibe einen knappen Satz auf Deutsch (maximal 160 Zeichen) über die ' .
             "Fitness-Woche des Lesers, basierend auf diesen Messwerten seiner Smartwatch:\n\n" .
             implode(separator: "\n", array: $lines) .
             "\n\n" .

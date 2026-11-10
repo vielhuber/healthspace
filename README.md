@@ -19,14 +19,14 @@ Point the web server at the application root. Configure `.data/.env`:
 
 ## Usage
 
-- **Übersicht**: weekly summary and weight trend.
-- **Messwerte**: weight, body fat, blood pressure and pulse; edit/delete records.
+- **Übersicht**: brief weekly summary and latest weight.
+- **Gewicht & Blutdruck**: weight, body fat, blood pressure and pulse; edit/delete records.
 - **Ernährung**: take/select a photo for automatic calorie estimation and storage; daily totals, seven-day statistics and a 30-day chart. Multiple meals per day are supported; incorrect entries can be removed. JPEG, PNG and WebP up to 8 MB are accepted; the browser resizes photos before upload. Photos are sent to the configured AI provider but not retained by healthspace. Estimates cover only logged meals.
-- **Aktivität & Schlaf**: Google Health trends; use **Synchronisieren** to refresh watch data.
+- **Aktivität & Schlaf**: Google Health trends, refreshed by the scheduled sync.
 
-Install through the browser menu or **App installieren** when offered (iOS: Share → Add to Home Screen). The offline screen and static assets are cached, never private health pages or photos. Photo recognition and health data require a connection; failed uploads are not queued.
+The interface always uses dark mode. Install through the browser menu (iOS: Share → Add to Home Screen). The offline screen and static assets are cached, never private health pages or photos. Photo recognition and health data require a connection; failed uploads are not queued.
 
-Optional scheduled sync:
+Scheduled sync:
 
 ```cron
 0 6,18 * * * curl -fsS 'https://your-host/?scrape=1&key=<URL-encoded AUTH_PASSWORD>' >/dev/null
