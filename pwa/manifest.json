@@ -1,14 +1,18 @@
 {
     "name": "healthspace",
     "short_name": "healthspace",
-    "description": "Personal health measurements and Google Health trends.",
-    "start_url": "/",
+    "description": "Messwerte, Mahlzeiten und Google-Health-Trends.",
+    "id": "/",
+    "start_url": "/?page=overview",
     "scope": "/",
     "display": "standalone",
-    "orientation": "portrait",
     "background_color": "#f4f4f5",
     "theme_color": "#111111",
     "lang": "de",
+    "shortcuts": [
+        { "name": "Gericht fotografieren", "url": "/?page=nutrition" },
+        { "name": "Messwerte erfassen", "url": "/?page=measurements#health-entry-form" }
+    ],
     "icons": [
         {
             "src": "/?asset=pwa/icon.svg",

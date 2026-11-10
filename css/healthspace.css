@@ -13,7 +13,8 @@ body {
 main {
     max-width: 940px;
     margin: 0 auto;
-    padding: 1.25rem 1rem;
+    padding: max(1.25rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+        max(1.25rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 [hidden] {
     display: none !important;
@@ -50,6 +51,10 @@ header.top button {
     color: inherit;
     cursor: pointer;
     font-size: 20px;
+}
+header.top #installApp {
+    padding: 10px;
+    font-size: 12px;
 }
 header.top nav a,
 header.top nav button {

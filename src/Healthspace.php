@@ -128,6 +128,7 @@ final class Healthspace
                     <nav aria-label="Aktionen">
                         <button type="button" id="themeToggle" aria-label="Farbschema wechseln">◐</button>
                         {$connection}
+                        <button type="button" id="installApp" hidden>App installieren</button>
                         <a href="/?scrape=1" target="_blank" rel="noopener">Synchronisieren ↻</a>
                         <a href="/?logout=1">Logout</a>
                     </nav>
@@ -543,7 +544,9 @@ final class Healthspace
         $mime = match (true) {
             str_ends_with(haystack: $file, needle: '.css') => 'text/css',
             str_ends_with(haystack: $file, needle: '.js') => 'text/javascript',
+            $file === 'manifest.json' => 'application/manifest+json',
             str_ends_with(haystack: $file, needle: '.json') => 'application/json',
+            str_ends_with(haystack: $file, needle: '.html') => 'text/html; charset=utf-8',
             str_ends_with(haystack: $file, needle: '.svg') => 'image/svg+xml',
             str_ends_with(haystack: $file, needle: '.png') => 'image/png',
             default => 'application/octet-stream'
@@ -719,7 +722,7 @@ final class Healthspace
      */
     private function pwaHeadTags(): string
     {
-        return '<link rel="manifest" href="/?asset=pwa/manifest.json">' .
+        return '<link rel="manifest" href="/?asset=pwa/manifest.json&v=2">' .
             '<meta name="theme-color" content="#111111">' .
             '<link rel="icon" type="image/svg+xml" href="/?asset=pwa/icon.svg">' .
             '<link rel="icon" type="image/png" sizes="192x192" href="/?asset=pwa/icon-192.png">' .
@@ -728,13 +731,7 @@ final class Healthspace
             '<meta name="mobile-web-app-capable" content="yes">' .
             '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' .
             '<meta name="apple-mobile-web-app-title" content="Healthspace">' .
-            '<script>' .
-            'if("serviceWorker" in navigator){' .
-            'window.addEventListener("load",()=>{' .
-            'navigator.serviceWorker.register("/?asset=pwa/sw.js",{scope:"/"});' .
-            '});' .
-            '}' .
-            '</script>';
+            '<script src="/?asset=js/pwa.js&v=2" defer></script>';
     }
 
     /**
