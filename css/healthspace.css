@@ -1,6 +1,6 @@
 @font-face {
     font-family: "Space Grotesk";
-    src: url("/?asset=css/space-grotesk.ttf&v=4") format("truetype");
+    src: url("/?asset=css/space-grotesk.ttf&v=5") format("truetype");
     font-style: normal;
     font-weight: 300 700;
     font-display: swap;
@@ -98,31 +98,11 @@ header.top h1 a,
 }
 .brand-mark {
     display: inline-block;
-    position: relative;
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-    border: 1.5px solid var(--accent);
-    border-radius: 50%;
-    transform: rotate(-25deg);
-}
-.brand-mark::before {
-    content: "";
-    position: absolute;
-    inset: 8px -6px;
-    border: 1px solid var(--accent);
-    border-radius: 50%;
-}
-.brand-mark::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 2px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 16px var(--accent);
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    background: url("/?asset=pwa/icon.svg&v=5") center / contain no-repeat;
+    filter: drop-shadow(0 0 12px rgba(128, 244, 212, 0.18));
 }
 header.top nav {
     display: flex;

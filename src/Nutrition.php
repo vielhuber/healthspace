@@ -375,7 +375,7 @@ final readonly class Nutrition
             <div class="health__canvas"><canvas id="healthIntake" role="img" aria-label="Täglich erfasste Kalorien der letzten 30 Tage"></canvas></div>
         </section>
         <section class="health-entry"><h2 class="health-entry__title">Mahlzeiten</h2>{$entries}</section>
-        <script src="/?asset=js/chart.min.js&v=4"></script>
+        <script src="/?asset=js/chart.min.js&v=5"></script>
         <script type="application/json" data-chart-config="{$payload}"></script>
         HTML;
     }

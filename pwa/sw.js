@@ -1,18 +1,18 @@
-let cacheName = 'healthspace-static-v4';
-let offlineUrl = '/?asset=pwa/offline.html&v=4';
+let cacheName = 'healthspace-static-v5';
+let offlineUrl = '/?asset=pwa/offline.html&v=5';
 let staticUrls = [
     offlineUrl,
-    '/?asset=css/healthspace.css&v=4',
-    '/?asset=css/space-grotesk.ttf&v=4',
-    '/?asset=js/charts.js&v=4',
-    '/?asset=js/nutrition.js&v=4',
-    '/?asset=js/pwa.js&v=4',
-    '/?asset=js/chart.min.js&v=4',
-    '/?asset=pwa/manifest.json&v=4',
-    '/?asset=pwa/icon.svg',
-    '/?asset=pwa/icon-192.png',
-    '/?asset=pwa/icon-512.png',
-    '/?asset=pwa/apple-touch-icon.png'
+    '/?asset=css/healthspace.css&v=5',
+    '/?asset=css/space-grotesk.ttf&v=5',
+    '/?asset=js/charts.js&v=5',
+    '/?asset=js/nutrition.js&v=5',
+    '/?asset=js/pwa.js&v=5',
+    '/?asset=js/chart.min.js&v=5',
+    '/?asset=pwa/manifest.json&v=5',
+    '/?asset=pwa/icon.svg&v=5',
+    '/?asset=pwa/icon-192.png&v=5',
+    '/?asset=pwa/icon-512.png&v=5',
+    '/?asset=pwa/apple-touch-icon.png&v=5'
 ];
 
 self.addEventListener('install', event => {

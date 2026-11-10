@@ -116,7 +116,7 @@ final class Healthspace
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
             <title>{$title} · healthspace</title>
             {$pwa}
-            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=4">
+            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=5">
         </head>
         <body>
             <main>
@@ -134,8 +134,8 @@ final class Healthspace
                 {$content}
                 {$upload}
             </main>
-            <script src="/?asset=js/nutrition.js&v=4" defer></script>
-            <script src="/?asset=js/charts.js&v=4"></script>
+            <script src="/?asset=js/nutrition.js&v=5" defer></script>
+            <script src="/?asset=js/charts.js&v=5"></script>
         </body>
         </html>
         HTML;
@@ -689,7 +689,7 @@ final class Healthspace
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
             <title>healthspace — Login</title>
             {$pwa}
-            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=4">
+            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=5">
         </head>
         <body class="login-page">
             <form class="login-form" method="post" action="/">
@@ -708,17 +708,17 @@ final class Healthspace
      */
     private function pwaHeadTags(): string
     {
-        return '<link rel="manifest" href="/?asset=pwa/manifest.json&v=4">' .
+        return '<link rel="manifest" href="/?asset=pwa/manifest.json&v=5">' .
             '<meta name="theme-color" content="#070c18">' .
-            '<link rel="preload" href="/?asset=css/space-grotesk.ttf&v=4" as="font" type="font/ttf" crossorigin>' .
-            '<link rel="icon" type="image/svg+xml" href="/?asset=pwa/icon.svg">' .
-            '<link rel="icon" type="image/png" sizes="192x192" href="/?asset=pwa/icon-192.png">' .
-            '<link rel="apple-touch-icon" href="/?asset=pwa/apple-touch-icon.png">' .
+            '<link rel="preload" href="/?asset=css/space-grotesk.ttf&v=5" as="font" type="font/ttf" crossorigin>' .
+            '<link rel="icon" type="image/svg+xml" href="/?asset=pwa/icon.svg&v=5">' .
+            '<link rel="icon" type="image/png" sizes="192x192" href="/?asset=pwa/icon-192.png&v=5">' .
+            '<link rel="apple-touch-icon" href="/?asset=pwa/apple-touch-icon.png&v=5">' .
             '<meta name="apple-mobile-web-app-capable" content="yes">' .
             '<meta name="mobile-web-app-capable" content="yes">' .
             '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' .
             '<meta name="apple-mobile-web-app-title" content="Healthspace">' .
-            '<script src="/?asset=js/pwa.js&v=4" defer></script>';
+            '<script src="/?asset=js/pwa.js&v=5" defer></script>';
     }
 
     /**
@@ -1533,7 +1533,7 @@ final class Healthspace
                 $measurementChartHtml .
                 $measurementFormHtml .
                 $measurementTableHtml .
-                '</section><script src="/?asset=js/chart.min.js&v=4"></script>' .
+                '</section><script src="/?asset=js/chart.min.js&v=5"></script>' .
                 '<script type="application/json" data-chart-config="' .
                 $payload .
                 '"></script>';
@@ -1565,7 +1565,7 @@ final class Healthspace
                 '</p>' .
                 $measurementTableHtml .
                 $measurementFormHtml .
-                '</section><script src="/?asset=js/chart.min.js&v=4"></script>' .
+                '</section><script src="/?asset=js/chart.min.js&v=5"></script>' .
                 '<script type="application/json" data-chart-config="' .
                 $payload .
                 '"></script>';
@@ -2009,7 +2009,7 @@ final class Healthspace
             $measurementChartHtml .
             $measurementTableHtml .
             $measurementFormHtml .
-            '</section><script src="/?asset=js/chart.min.js&v=4"></script>' .
+            '</section><script src="/?asset=js/chart.min.js&v=5"></script>' .
             '<script type="application/json" data-chart-config="' .
             $payload .
             '"></script>';
