@@ -18,6 +18,9 @@ main {
 a {
     color: inherit;
 }
+.connection-status {
+    color: #15803d;
+}
 header.top {
     display: flex;
     align-items: center;
@@ -76,6 +79,9 @@ html[data-theme="dark"] {
 html[data-theme="dark"] body {
     background: #09090b;
     color: #e4e4e7;
+}
+html[data-theme="dark"] .connection-status {
+    color: #4ade80;
 }
 .health-entry {
     margin-bottom: 1.25rem;

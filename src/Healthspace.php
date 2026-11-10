@@ -74,6 +74,9 @@ final class Healthspace
         $measurements = $this->buildHealthBlock();
         $digest = json_decode(json: $this->cacheGet(key: 'health_digest') ?? '{}', associative: true);
         $summary = $this->buildHealthDigestBlock(health: is_array(value: $digest) ? $digest : []);
+        $connection = $this->isGoogleHealthConnected()
+            ? '<span class="connection-status">Google Health verbunden</span>'
+            : '<a href="/?health=connect">Google Health verbinden</a>';
         $lastSync = is_file(filename: $this->logDir . '/scrape.log')
             ? 'Zuletzt synchronisiert: ' .
                 date(format: 'd.m.Y H:i', timestamp: (int) filemtime(filename: $this->logDir . '/scrape.log'))
@@ -95,7 +98,7 @@ final class Healthspace
                     <h1><a href="/">💚 healthspace</a></h1>
                     <nav aria-label="Aktionen">
                         <button type="button" id="themeToggle" aria-label="Farbschema wechseln">◐</button>
-                        <a href="/?health=connect">Google Health verbinden</a>
+                        {$connection}
                         <a href="/?scrape=1" target="_blank" rel="noopener">Synchronisieren ↻</a>
                         <a href="/?logout=1">Logout</a>
                     </nav>
@@ -723,6 +726,23 @@ final class Healthspace
     private function googleHealthTokenFile(): string
     {
         return $this->dataDir . '/google_health.json';
+    }
+
+    /**
+     * Detect a saved connection without refreshing tokens during page rendering.
+     */
+    private function isGoogleHealthConnected(): bool
+    {
+        if (!is_file(filename: $this->googleHealthTokenFile())) {
+            return false;
+        }
+        $token = json_decode(
+            json: (string) file_get_contents(filename: $this->googleHealthTokenFile()),
+            associative: true
+        );
+        return is_array(value: $token) &&
+            is_string(value: $token['refresh_token'] ?? null) &&
+            $token['refresh_token'] !== '';
     }
 
     /**
@@ -1468,7 +1488,7 @@ final class Healthspace
             )
             ->fetchAll(mode: PDO::FETCH_ASSOC);
         if ($rows === []) {
-            $connected = is_file(filename: $this->googleHealthTokenFile());
+            $connected = $this->isGoogleHealthConnected();
             $hint = $connected
                 ? 'Verbunden, aber noch keine Daten – bei der nächsten Synchronisierung werden sie geholt.'
                 : 'Noch nicht verbunden. <a href="/?health=connect">Google Health jetzt verbinden</a>.';
