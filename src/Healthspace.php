@@ -29,8 +29,8 @@ final class Healthspace
         'AWAKE' => 'sleep_awake_minutes'
     ];
     private const GOOGLE_HEALTH_HISTORY_DAYS = 90;
-    private const GOOGLE_HEALTH_STEP_GOAL = 10000;
-    private const GOOGLE_HEALTH_STEP_AMBER = 7500;
+    private const GOOGLE_HEALTH_STEP_GOAL = 5_000;
+    private const GOOGLE_HEALTH_STEP_AMBER = 3_750;
     private const HEALTH_WEIGHT_GOAL_KG = 105;
     private const HEALTH_WEIGHT_AMBER_KG = 110;
     private const GOOGLE_HEALTH_SLEEP_GOAL = 420;
