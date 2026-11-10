@@ -19,7 +19,7 @@ Point the web server at the application root. Configure `.data/.env`:
 
 ## Usage
 
-- **Übersicht**: brief weekly summary and latest weight.
+- **Übersicht**: detailed AI review of activity, sleep, measurements and logged calorie intake.
 - **Gewicht & Blutdruck**: weight, body fat, blood pressure and pulse; edit/delete records.
 - **Ernährung**: take/select a photo for automatic calorie estimation and storage; daily totals, seven-day statistics and a 30-day chart. Multiple meals per day are supported; incorrect entries can be removed. JPEG, PNG and WebP up to 8 MB are accepted; the browser resizes photos before upload. Photos are sent to the configured AI provider but not retained by healthspace. Estimates cover only logged meals.
 - **Aktivität & Schlaf**: Google Health trends, refreshed by the scheduled sync.
