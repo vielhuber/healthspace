@@ -66,14 +66,43 @@ final class Healthspace
     }
 
     /**
-     * Present health trends without the news application's navigation.
+     * Keep each health workflow on its own linked page.
      */
     private function renderDashboard(): string
     {
         $pwa = $this->pwaHeadTags();
-        $measurements = $this->buildHealthBlock();
-        $digest = json_decode(json: $this->cacheGet(key: 'health_digest') ?? '{}', associative: true);
-        $summary = $this->buildHealthDigestBlock(health: is_array(value: $digest) ? $digest : []);
+        $pages = [
+            'overview' => 'Übersicht',
+            'measurements' => 'Messwerte',
+            'nutrition' => 'Ernährung',
+            'activity' => 'Aktivität & Schlaf'
+        ];
+        $page = (string) ($_GET['page'] ?? (isset($_GET['edit_measurement']) ? 'measurements' : 'overview'));
+        if (!isset($pages[$page])) {
+            http_response_code(response_code: 404);
+            return '<h1>Seite nicht gefunden</h1><a href="/">Zur Übersicht</a>';
+        }
+        $title = $pages[$page];
+        $navigation = '';
+        foreach ($pages as $key => $label) {
+            $navigation .=
+                '<a href="/?page=' .
+                $key .
+                '"' .
+                ($page === $key ? ' aria-current="page"' : '') .
+                '>' .
+                $label .
+                '</a>';
+        }
+        $content = $page === 'nutrition' ? $this->nutrition()->render() : $this->buildHealthBlock(page: $page);
+        if ($page === 'overview') {
+            $digest = json_decode(json: $this->cacheGet(key: 'health_digest') ?? '{}', associative: true);
+            $content =
+                $this->buildHealthDigestBlock(health: is_array(value: $digest) ? $digest : []) .
+                '<p class="page-links"><a href="/?page=nutrition">Gericht fotografieren</a> · ' .
+                '<a href="/?page=measurements#health-entry-form">Messwerte erfassen</a></p>' .
+                $content;
+        }
         $connection = $this->isGoogleHealthConnected()
             ? '<span class="connection-status">Google Health verbunden</span>'
             : '<a href="/?health=connect">Google Health verbinden</a>';
@@ -87,10 +116,10 @@ final class Healthspace
         <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
-            <title>healthspace</title>
+            <title>{$title} · healthspace</title>
             {$pwa}
-            <script src="/?asset=js/theme.js"></script>
-            <link rel="stylesheet" href="/?asset=css/healthspace.css">
+            <script src="/?asset=js/theme.js&v=2"></script>
+            <link rel="stylesheet" href="/?asset=css/healthspace.css&v=2">
         </head>
         <body>
             <main>
@@ -103,11 +132,12 @@ final class Healthspace
                         <a href="/?logout=1">Logout</a>
                     </nav>
                 </header>
+                <nav class="page-nav" aria-label="Hauptnavigation">{$navigation}</nav>
+                <h2 class="page-title">{$title}</h2>
                 <p class="last-sync">{$lastSync}</p>
-                {$summary}
-                {$measurements}
+                {$content}
             </main>
-            <script src="/?asset=js/charts.js"></script>
+            <script src="/?asset=js/charts.js&v=2"></script>
         </body>
         </html>
         HTML;
@@ -206,12 +236,16 @@ final class Healthspace
             }
             return;
         }
+        if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_GET['page'] ?? '') === 'nutrition') {
+            $this->nutrition()->handleRequest();
+            return;
+        }
         if (isset($_POST['health_action'])) {
             $action = (string) $_POST['health_action'];
             $measurementIdInput = trim(string: (string) ($_POST['measurement_id'] ?? ''));
             $measurementId =
                 $measurementIdInput === '' ? null : filter_var(value: $measurementIdInput, filter: FILTER_VALIDATE_INT);
-            $redirectParameters = [];
+            $redirectParameters = ['page' => 'measurements'];
             if ($action === 'delete') {
                 if ($measurementId === false || $measurementId === null || $measurementId < 1) {
                     $redirectParameters['health_error'] = 'Ungültiger Datensatz.';
@@ -416,6 +450,16 @@ final class Healthspace
                 sleep_start TEXT DEFAULT NULL,
                 sleep_end TEXT DEFAULT NULL,
                 updated_at INTEGER NOT NULL
+            );'
+        );
+        $db->exec(
+            statement: 'CREATE TABLE IF NOT EXISTS health_meals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                day TEXT NOT NULL,
+                dish TEXT NOT NULL,
+                calories INTEGER NOT NULL CHECK(calories >= 0),
+                submission_id TEXT UNIQUE NOT NULL,
+                created_at INTEGER NOT NULL
             );'
         );
         $db->exec(
@@ -743,6 +787,21 @@ final class Healthspace
         return is_array(value: $token) &&
             is_string(value: $token['refresh_token'] ?? null) &&
             $token['refresh_token'] !== '';
+    }
+
+    /**
+     * Reuse the configured AI provider and the measurements database for meals.
+     */
+    private function nutrition(): Nutrition
+    {
+        $environment = $this->loadEnv();
+        return new Nutrition(
+            database: $this->openDatabase(),
+            provider: (string) ($environment['AI_PROVIDER'] ?? 'openai'),
+            model: (string) ($environment['AI_MODEL'] ?? 'gpt-5-nano'),
+            apiKey: (string) ($environment['AI_API_KEY'] ?? ''),
+            baseUrl: (string) ($environment['AI_BASE_URL'] ?? '')
+        );
     }
 
     /**
@@ -1214,7 +1273,7 @@ final class Healthspace
     /**
      * Render manual measurements and the watch's daily rollups as Chart.js diagrams.
      */
-    private function buildHealthBlock(): string
+    private function buildHealthBlock(string $page = 'all'): string
     {
         $measurementRows = $this->openDatabase()
             ->query(
@@ -1246,7 +1305,9 @@ final class Healthspace
         $formTitle = $editMeasurement !== null ? 'Messwerte bearbeiten' : 'Messwerte erfassen';
         $submitLabel = $editMeasurement !== null ? 'Änderungen speichern' : 'Speichern';
         $cancelLink =
-            $editMeasurement !== null ? '<a class="health-entry__cancel" href="/#health-entry-form">Abbrechen</a>' : '';
+            $editMeasurement !== null
+                ? '<a class="health-entry__cancel" href="/?page=measurements#health-entry-form">Abbrechen</a>'
+                : '';
         $message = '';
         $healthStatus = (string) ($_GET['health_status'] ?? '');
         if ($healthStatus === 'saved') {
@@ -1308,11 +1369,11 @@ final class Healthspace
                 '<td>' .
                 $pulseLabel .
                 '</td>' .
-                '<td class="health-entry__actions"><a class="health-entry__action" href="/?edit_measurement=' .
+                '<td class="health-entry__actions"><a class="health-entry__action" href="/?page=measurements&edit_measurement=' .
                 (int) $measurementRow['id'] .
                 '#health-entry-form" aria-label="Bearbeiten" title="Bearbeiten">' .
                 '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Zm9.5-13.5 4 4"/></svg></a>' .
-                '<form method="post" action="/" onsubmit="return confirm(\'Eintrag wirklich löschen?\')">' .
+                '<form method="post" action="/?page=measurements" onsubmit="return confirm(\'Eintrag wirklich löschen?\')">' .
                 '<input type="hidden" name="health_action" value="delete">' .
                 '<input type="hidden" name="measurement_id" value="' .
                 (int) $measurementRow['id'] .
@@ -1339,7 +1400,7 @@ final class Healthspace
             $formTitle .
             '</h2>' .
             $message .
-            '<form class="health-entry__form" method="post" action="/">' .
+            '<form class="health-entry__form" method="post" action="/?page=measurements">' .
             '<input type="hidden" name="health_action" value="save">' .
             $formId .
             '<label>Datum<input type="date" name="day" value="' .
@@ -1472,12 +1533,60 @@ final class Healthspace
         );
         $measurementChartHtml = '';
         foreach ($measurementCharts as $measurementChart) {
+            if ($page === 'overview' && $measurementChart['id'] !== 'healthWeight') {
+                continue;
+            }
             $measurementChartHtml .=
                 '<div class="health__chart"><h3 class="health__chart-title">' .
                 $measurementChart['label'] .
                 '</h3><div class="health__canvas"><canvas id="' .
                 $measurementChart['id'] .
                 '"></canvas></div></div>';
+        }
+        if ($page === 'overview' || $page === 'measurements') {
+            $payload = htmlspecialchars(string: (string) json_encode(value: $measurementCharts), flags: ENT_QUOTES);
+            $latestWeight = '';
+            foreach ($measurementRows as $measurementRow) {
+                if ($page !== 'overview' || $measurementRow['weight_kg'] === null) {
+                    continue;
+                }
+                $weightLevel = match (true) {
+                    (float) $measurementRow['weight_kg'] <= self::HEALTH_WEIGHT_GOAL_KG => 'green',
+                    (float) $measurementRow['weight_kg'] <= self::HEALTH_WEIGHT_AMBER_KG => 'amber',
+                    default => 'red'
+                };
+                $latestWeight =
+                    '<div class="health__light"><span class="health__lamp health__lamp--on health__lamp--' .
+                    $weightLevel .
+                    '" aria-hidden="true"></span><div class="health__light-text">' .
+                    '<span class="health__light-title">Letztes Gewicht</span><strong class="health__light-value">' .
+                    number_format(
+                        num: (float) $measurementRow['weight_kg'],
+                        decimals: 1,
+                        decimal_separator: ',',
+                        thousands_separator: '.'
+                    ) .
+                    ' kg</strong><span class="health__light-caption">Ziel ' .
+                    self::HEALTH_WEIGHT_GOAL_KG .
+                    ' kg · ' .
+                    date(format: 'd.m.Y', timestamp: (int) strtotime(datetime: $measurementRow['day'])) .
+                    '</span></div></div>';
+                break;
+            }
+            return '<section class="health">' .
+                $latestWeight .
+                $measurementChartHtml .
+                ($page === 'measurements' ? $measurementFormHtml . $measurementTableHtml : '') .
+                '</section><script src="/?asset=js/chart.min.js&v=2"></script>' .
+                '<script type="application/json" data-chart-config="' .
+                $payload .
+                '"></script>';
+        }
+        if ($page === 'activity') {
+            $measurementChartHtml = '';
+            $measurementTableHtml = '';
+            $measurementFormHtml = '';
+            $measurementCharts = [];
         }
         $rows = $this->openDatabase()
             ->query(
@@ -1500,7 +1609,7 @@ final class Healthspace
                 '</p>' .
                 $measurementTableHtml .
                 $measurementFormHtml .
-                '</section><script src="?asset=js/chart.min.js"></script>' .
+                '</section><script src="/?asset=js/chart.min.js&v=2"></script>' .
                 '<script type="application/json" data-chart-config="' .
                 $payload .
                 '"></script>';
@@ -1743,6 +1852,9 @@ final class Healthspace
             ];
         }
         foreach ($measurementRows as $measurementRow) {
+            if ($page === 'activity') {
+                break;
+            }
             if ($measurementRow['weight_kg'] === null) {
                 continue;
             }
@@ -1941,7 +2053,7 @@ final class Healthspace
             $measurementChartHtml .
             $measurementTableHtml .
             $measurementFormHtml .
-            '</section><script src="?asset=js/chart.min.js"></script>' .
+            '</section><script src="/?asset=js/chart.min.js&v=2"></script>' .
             '<script type="application/json" data-chart-config="' .
             $payload .
             '"></script>';

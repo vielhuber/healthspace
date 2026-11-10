@@ -15,11 +15,11 @@ main {
     margin: 0 auto;
     padding: 1.25rem 1rem;
 }
+[hidden] {
+    display: none !important;
+}
 a {
     color: inherit;
-}
-.connection-status {
-    color: #15803d;
 }
 header.top {
     display: flex;
@@ -51,6 +51,110 @@ header.top button {
     cursor: pointer;
     font-size: 20px;
 }
+header.top nav a,
+header.top nav button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+}
+.health-entry__buttons button,
+.meal-entry button {
+    min-height: 44px;
+}
+.connection-status {
+    color: #15803d;
+}
+.page-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 24px 0;
+}
+.page-nav a {
+    padding: 12px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+}
+.page-nav a[aria-current="page"] {
+    background: #18181b;
+    color: #fff;
+}
+.page-title {
+    margin: 0 0 12px;
+    font-size: 22px;
+}
+.page-links {
+    line-height: 1.8;
+}
+:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+.meal-upload__fields {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.meal-upload__fields label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    font-size: 13px;
+}
+.meal-upload__fields input {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #d4d4d8;
+    border-radius: 6px;
+    background: #fff;
+    color: inherit;
+    font: inherit;
+}
+#meal-preview {
+    display: block;
+    max-width: 100%;
+    max-height: 260px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+.meal-entry {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid #d4d4d8;
+}
+.meal-entry > div {
+    flex: 1 1 160px;
+    overflow-wrap: anywhere;
+}
+.meal-entry h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+}
+.meal-entry time {
+    color: #71717a;
+    font-size: 12px;
+}
+.meal-entry form {
+    margin: 0;
+}
+.meal-entry button {
+    padding: 10px;
+    color: inherit;
+    background: none;
+    border: 1px solid #d4d4d8;
+    border-radius: 6px;
+    cursor: pointer;
+}
+button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
 .last-sync,
 .viewnav__empty {
     color: #71717a;
@@ -80,8 +184,29 @@ html[data-theme="dark"] body {
     background: #09090b;
     color: #e4e4e7;
 }
+html[data-theme="dark"] .page-nav a[aria-current="page"] {
+    background: #e4e4e7;
+    color: #18181b;
+}
 html[data-theme="dark"] .connection-status {
     color: #4ade80;
+}
+html[data-theme="dark"] .viewnav__empty {
+    color: #a1a1aa;
+}
+html[data-theme="dark"] .health-entry__message--error {
+    color: #f87171;
+}
+html[data-theme="dark"] .health-entry__message--success {
+    color: #4ade80;
+}
+html[data-theme="dark"] .meal-upload__fields input {
+    background: #27272a;
+    border-color: #3f3f46;
+}
+html[data-theme="dark"] .meal-entry,
+html[data-theme="dark"] .meal-entry button {
+    border-color: #3f3f46;
 }
 .health-entry {
     margin-bottom: 1.25rem;
@@ -242,6 +367,9 @@ html[data-theme="dark"] .connection-status {
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     margin-bottom: 1.25rem;
+}
+.health__kpis--nutrition {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .health__kpi {
     display: flex;
@@ -425,11 +553,17 @@ html[data-theme="dark"] .health-entry__action:focus-visible {
     outline-color: #e4e4e7;
 }
 @media (max-width: 640px) {
+    .meal-upload__fields {
+        grid-template-columns: 1fr;
+    }
     .health-entry__form {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .health__kpis {
         grid-template-columns: repeat(2, 1fr);
+    }
+    .health__kpis--nutrition .health__kpi:last-child {
+        grid-column: 1 / -1;
     }
     .health__lights {
         grid-template-columns: 1fr;
